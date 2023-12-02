@@ -18,16 +18,13 @@ fn part_1<T: AsRef<str>>(lines: impl Iterator<Item = T>) -> u64 {
         .filter_map(|line| {
             let line = line_pattern.captures(line.as_ref().trim())?;
             let game_id: u64 = line.get(1).unwrap().as_str().parse().unwrap();
-            println!("game_id: {}", game_id);
 
             for reveal in line.get(2).unwrap().as_str().split(';') {
-                println!("reveal: {}", reveal);
                 let mut amount_red = 0;
                 let mut amount_blue = 0;
                 let mut amount_green = 0;
                 for color_show in reveal.split(',') {
                     let (amount, color) = color_show.trim().split_once(' ').unwrap();
-                    println!("color: {}, amount: {}", color, amount);
 
                     let amount: u64 = amount.parse().unwrap();
 
@@ -54,18 +51,15 @@ fn part_2<T: AsRef<str>>(lines: impl Iterator<Item = T>) -> u64 {
     lines
         .filter_map(|line| {
             let line = line_pattern.captures(line.as_ref().trim())?;
-            let game_id: u64 = line.get(1).unwrap().as_str().parse().unwrap();
-            println!("game_id: {}", game_id);
+            let _game_id: u64 = line.get(1).unwrap().as_str().parse().unwrap();
 
             let mut max_red = 0;
             let mut max_blue = 0;
             let mut max_green = 0;
 
             for reveal in line.get(2).unwrap().as_str().split(';') {
-                println!("reveal: {}", reveal);
                 for color_show in reveal.split(',') {
                     let (amount, color) = color_show.trim().split_once(' ').unwrap();
-                    println!("color: {}, amount: {}", color, amount);
 
                     let amount: u64 = amount.parse().unwrap();
 
@@ -78,9 +72,6 @@ fn part_2<T: AsRef<str>>(lines: impl Iterator<Item = T>) -> u64 {
                 }
             }
 
-            println!("max_red: {}", max_red);
-            println!("max_blue: {}", max_blue);
-            println!("max_green: {}", max_green);
             Some(dbg!(max_red * max_blue * max_green))
         })
         .sum()
