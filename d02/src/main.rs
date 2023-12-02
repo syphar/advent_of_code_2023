@@ -3,64 +3,54 @@ mod data;
 use data::Game;
 
 fn main() {
-    let games: Vec<Game> =
-        parse_input(&std::fs::read_to_string(std::env::args().nth(1).unwrap()).unwrap());
+    let input = include_str!("../input.txt");
 
-    println!("part 1: {}", part_1(games.iter().cloned()));
-    println!("part 2: {}", part_2(games.iter().cloned()));
+    println!("part 1: {}", run_on_input(input, part_1));
+    println!("part 2: {}", run_on_input(input, part_2));
 }
 
-fn parse_input(input: &str) -> Vec<Game> {
+fn run_on_input<F>(input: &str, f: F) -> u64
+where
+    F: Fn(&Game) -> Option<u64>,
+{
     input
         .lines()
+        .filter(|l| !l.trim().is_empty())
         .filter_map(|l| {
-            if l.trim().is_empty() {
-                None
-            } else {
-                Some(l.parse().unwrap())
-            }
-        })
-        .collect()
-}
-
-fn part_1(games: impl IntoIterator<Item = Game>) -> u64 {
-    games
-        .into_iter()
-        .map(|game| {
-            for reveal in &game.reveals {
-                if reveal.red > 12 {
-                    return 0;
-                }
-                if reveal.blue > 14 {
-                    return 0;
-                }
-                if reveal.green > 13 {
-                    return 0;
-                }
-            }
-
-            game.id
+            let game: Game = l.parse().unwrap();
+            f(&game)
         })
         .sum()
 }
 
-fn part_2(games: impl IntoIterator<Item = Game>) -> u64 {
-    games
-        .into_iter()
-        .map(|game| {
-            let mut max_red = 0;
-            let mut max_blue = 0;
-            let mut max_green = 0;
+fn part_1(game: &Game) -> Option<u64> {
+    for reveal in &game.reveals {
+        if reveal.red > 12 {
+            return None;
+        }
+        if reveal.blue > 14 {
+            return None;
+        }
+        if reveal.green > 13 {
+            return None;
+        }
+    }
 
-            for reveal in game.reveals.iter() {
-                max_red = max_red.max(reveal.red);
-                max_blue = max_blue.max(reveal.blue);
-                max_green = max_green.max(reveal.green);
-            }
+    Some(game.id)
+}
 
-            max_red * max_blue * max_green
-        })
-        .sum()
+fn part_2(game: &Game) -> Option<u64> {
+    let mut max_red = 0;
+    let mut max_blue = 0;
+    let mut max_green = 0;
+
+    for reveal in game.reveals.iter() {
+        max_red = max_red.max(reveal.red);
+        max_blue = max_blue.max(reveal.blue);
+        max_green = max_green.max(reveal.green);
+    }
+
+    Some(max_red * max_blue * max_green)
 }
 
 #[cfg(test)]
@@ -77,11 +67,11 @@ mod tests {
 
     #[test]
     fn test_1() {
-        assert_eq!(part_1(parse_input(TEST_INPUT)), 8);
+        assert_eq!(run_on_input(TEST_INPUT, part_1), 8);
     }
 
     #[test]
     fn test_2() {
-        assert_eq!(part_2(parse_input(TEST_INPUT)), 2286);
+        assert_eq!(run_on_input(TEST_INPUT, part_2), 2286);
     }
 }
