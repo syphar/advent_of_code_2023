@@ -57,7 +57,6 @@ impl FromStr for Game {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let line_pattern = Regex::new(r#"Game (\d+): (.*)"#).unwrap();
-        println!("line: {:?}", s.trim());
         let line = line_pattern.captures(s.trim()).unwrap();
         let id: u64 = line.get(1).unwrap().as_str().parse().unwrap();
         let reveals = line
