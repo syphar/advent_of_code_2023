@@ -6,8 +6,8 @@ fn main() {
     let games: Vec<Game> =
         parse_input(&std::fs::read_to_string(std::env::args().nth(1).unwrap()).unwrap());
 
-    println!("part 1: {}", part_1(games.iter()));
-    println!("part 2: {}", part_2(games.iter()));
+    println!("part 1: {}", part_1(games.iter().cloned()));
+    println!("part 2: {}", part_2(games.iter().cloned()));
 }
 
 fn parse_input(input: &str) -> Vec<Game> {
@@ -23,8 +23,9 @@ fn parse_input(input: &str) -> Vec<Game> {
         .collect()
 }
 
-fn part_1<'a>(games: impl Iterator<Item = &'a Game>) -> u64 {
+fn part_1(games: impl IntoIterator<Item = Game>) -> u64 {
     games
+        .into_iter()
         .map(|game| {
             for reveal in &game.reveals {
                 if reveal.red > 12 {
@@ -43,8 +44,9 @@ fn part_1<'a>(games: impl Iterator<Item = &'a Game>) -> u64 {
         .sum()
 }
 
-fn part_2<'a>(games: impl Iterator<Item = &'a Game>) -> u64 {
+fn part_2(games: impl IntoIterator<Item = Game>) -> u64 {
     games
+        .into_iter()
         .map(|game| {
             let mut max_red = 0;
             let mut max_blue = 0;
@@ -75,11 +77,11 @@ mod tests {
 
     #[test]
     fn test_1() {
-        assert_eq!(part_1(parse_input(TEST_INPUT).iter()), 8);
+        assert_eq!(part_1(parse_input(TEST_INPUT)), 8);
     }
 
     #[test]
     fn test_2() {
-        assert_eq!(part_2(parse_input(TEST_INPUT).iter()), 2286);
+        assert_eq!(part_2(parse_input(TEST_INPUT)), 2286);
     }
 }

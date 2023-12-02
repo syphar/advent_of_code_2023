@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use regex::Regex;
 
-#[derive(Debug, Eq, PartialEq, Default)]
+#[derive(Debug, Clone, Eq, PartialEq, Default)]
 pub(crate) struct Reveal {
     pub(crate) red: u64,
     pub(crate) blue: u64,
@@ -29,7 +29,7 @@ impl FromStr for Reveal {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub(crate) struct Game {
     pub(crate) id: u64,
     pub(crate) reveals: Vec<Reveal>,
