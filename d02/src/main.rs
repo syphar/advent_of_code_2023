@@ -75,19 +75,20 @@ fn part_1<'a>(games: impl Iterator<Item = &'a Game>) -> u64 {
     games
         .map(|game| {
             for reveal in &game.reveals {
-                let mut amount_red = 0;
-                let mut amount_blue = 0;
-                let mut amount_green = 0;
-
-                for (color, amount) in &reveal.0 {
-                    match color {
-                        Color::Red => amount_red += amount,
-                        Color::Blue => amount_blue += amount,
-                        Color::Green => amount_green += amount,
+                if let Some(amount) = reveal.0.get(&Color::Red) {
+                    if *amount > 12 {
+                        return 0;
                     }
                 }
-                if amount_red > 12 || amount_green > 13 || amount_blue > 14 {
-                    return 0;
+                if let Some(amount) = reveal.0.get(&Color::Blue) {
+                    if *amount > 14 {
+                        return 0;
+                    }
+                }
+                if let Some(amount) = reveal.0.get(&Color::Green) {
+                    if *amount > 13 {
+                        return 0;
+                    }
                 }
             }
 
