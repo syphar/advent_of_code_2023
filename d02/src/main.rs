@@ -1,6 +1,6 @@
 mod data;
 
-use data::Game;
+use data::{Game, Reveal};
 
 fn main() {
     let input = include_str!("../input.txt");
@@ -24,33 +24,19 @@ where
 }
 
 fn part_1(game: &Game) -> Option<u64> {
-    for reveal in &game.reveals {
-        if reveal.red > 12 {
-            return None;
-        }
-        if reveal.blue > 14 {
-            return None;
-        }
-        if reveal.green > 13 {
-            return None;
-        }
-    }
-
-    Some(game.id)
+    game.reveals
+        .iter()
+        .all(|reveal| reveal.red <= 12 && reveal.blue <= 14 && reveal.green <= 13)
+        .then_some(game.id)
 }
 
 fn part_2(game: &Game) -> Option<u64> {
-    let mut max_red = 0;
-    let mut max_blue = 0;
-    let mut max_green = 0;
+    let max_reveal = game
+        .reveals
+        .iter()
+        .fold(Reveal::default(), |acc, reveal| acc.max(reveal));
 
-    for reveal in game.reveals.iter() {
-        max_red = max_red.max(reveal.red);
-        max_blue = max_blue.max(reveal.blue);
-        max_green = max_green.max(reveal.green);
-    }
-
-    Some(max_red * max_blue * max_green)
+    Some(max_reveal.red * max_reveal.blue * max_reveal.green)
 }
 
 #[cfg(test)]

@@ -9,6 +9,16 @@ pub(crate) struct Reveal {
     pub(crate) green: u64,
 }
 
+impl Reveal {
+    pub(crate) fn max(&self, other: &Reveal) -> Self {
+        Self {
+            red: self.red.max(other.red),
+            blue: self.blue.max(other.blue),
+            green: self.green.max(other.green),
+        }
+    }
+}
+
 impl FromStr for Reveal {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
