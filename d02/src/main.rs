@@ -8,7 +8,7 @@ fn main() {
         .collect();
 
     println!("part 1: {}", part_1(lines.iter()));
-    // println!("part 2: {}", run(lines.iter()));
+    println!("part 2: {}", part_2(lines.iter()));
 }
 
 fn part_1<T: AsRef<str>>(lines: impl Iterator<Item = T>) -> u64 {
@@ -48,6 +48,44 @@ fn part_1<T: AsRef<str>>(lines: impl Iterator<Item = T>) -> u64 {
         .sum()
 }
 
+fn part_2<T: AsRef<str>>(lines: impl Iterator<Item = T>) -> u64 {
+    let line_pattern = Regex::new(r#"Game (\d+): (.*)"#).unwrap();
+
+    lines
+        .filter_map(|line| {
+            let line = line_pattern.captures(line.as_ref().trim())?;
+            let game_id: u64 = line.get(1).unwrap().as_str().parse().unwrap();
+            println!("game_id: {}", game_id);
+
+            let mut max_red = 0;
+            let mut max_blue = 0;
+            let mut max_green = 0;
+
+            for reveal in line.get(2).unwrap().as_str().split(';') {
+                println!("reveal: {}", reveal);
+                for color_show in reveal.split(',') {
+                    let (amount, color) = color_show.trim().split_once(' ').unwrap();
+                    println!("color: {}, amount: {}", color, amount);
+
+                    let amount: u64 = amount.parse().unwrap();
+
+                    match color {
+                        "red" => max_red = max_red.max(amount),
+                        "blue" => max_blue = max_blue.max(amount),
+                        "green" => max_green = max_green.max(amount),
+                        _ => panic!("unknown color: {}", color),
+                    }
+                }
+            }
+
+            println!("max_red: {}", max_red);
+            println!("max_blue: {}", max_blue);
+            println!("max_green: {}", max_green);
+            Some(dbg!(max_red * max_blue * max_green))
+        })
+        .sum()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -63,5 +101,10 @@ mod tests {
     #[test]
     fn test_1() {
         assert_eq!(part_1(TEST_INPUT.lines()), 8);
+    }
+
+    #[test]
+    fn test_2() {
+        assert_eq!(part_2(TEST_INPUT.lines()), 2286);
     }
 }
