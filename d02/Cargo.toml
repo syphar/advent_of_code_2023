@@ -7,5 +7,3 @@ edition = "2021"
 
 [dependencies]
 regex = "1.10.2"
-strum = { version = "0.25.0", features = ["derive"] }
-test-case = "3.3.1"

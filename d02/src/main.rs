@@ -1,11 +1,17 @@
-use std::{collections::HashMap, str::FromStr};
+use std::str::FromStr;
 
 use regex::Regex;
-use strum::EnumString;
 
 fn main() {
-    let games: Vec<Game> = std::fs::read_to_string(std::env::args().nth(1).unwrap())
-        .unwrap()
+    let games: Vec<Game> =
+        parse_input(&std::fs::read_to_string(std::env::args().nth(1).unwrap()).unwrap());
+
+    println!("part 1: {}", part_1(games.iter()));
+    println!("part 2: {}", part_2(games.iter()));
+}
+
+fn parse_input(input: &str) -> Vec<Game> {
+    input
         .lines()
         .filter_map(|l| {
             if l.trim().is_empty() {
@@ -14,36 +20,33 @@ fn main() {
                 Some(l.parse().unwrap())
             }
         })
-        .collect();
-
-    println!("part 1: {}", part_1(games.iter()));
-    println!("part 2: {}", part_2(games.iter()));
+        .collect()
 }
 
-#[derive(Debug, Hash, Eq, PartialEq, EnumString)]
-#[strum(serialize_all = "lowercase")]
-enum Color {
-    Red,
-    Blue,
-    Green,
+#[derive(Debug, Eq, PartialEq, Default)]
+struct Reveal {
+    red: u64,
+    blue: u64,
+    green: u64,
 }
-
-#[derive(Debug, Eq, PartialEq)]
-struct Reveal(HashMap<Color, u64>);
 
 impl FromStr for Reveal {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut colors = HashMap::new();
+        let mut reveal = Self::default();
+
         for color_show in s.split(',') {
             let (amount, color) = color_show.trim().split_once(' ').unwrap();
             let amount: u64 = amount.parse().unwrap();
-            let color = color.parse().unwrap();
 
-            debug_assert!(!colors.contains_key(&color));
-            colors.insert(color, amount);
+            match color {
+                "red" => reveal.red += amount,
+                "blue" => reveal.blue += amount,
+                "green" => reveal.green += amount,
+                _ => panic!("unknown color {}", color),
+            }
         }
-        Ok(Self(colors))
+        Ok(reveal)
     }
 }
 
@@ -74,20 +77,14 @@ fn part_1<'a>(games: impl Iterator<Item = &'a Game>) -> u64 {
     games
         .map(|game| {
             for reveal in &game.reveals {
-                if let Some(amount) = reveal.0.get(&Color::Red) {
-                    if *amount > 12 {
-                        return 0;
-                    }
+                if reveal.red > 12 {
+                    return 0;
                 }
-                if let Some(amount) = reveal.0.get(&Color::Blue) {
-                    if *amount > 14 {
-                        return 0;
-                    }
+                if reveal.blue > 14 {
+                    return 0;
                 }
-                if let Some(amount) = reveal.0.get(&Color::Green) {
-                    if *amount > 13 {
-                        return 0;
-                    }
+                if reveal.green > 13 {
+                    return 0;
                 }
             }
 
@@ -104,13 +101,9 @@ fn part_2<'a>(games: impl Iterator<Item = &'a Game>) -> u64 {
             let mut max_green = 0;
 
             for reveal in game.reveals.iter() {
-                for (color, amount) in &reveal.0 {
-                    match color {
-                        Color::Red => max_red = max_red.max(*amount),
-                        Color::Blue => max_blue = max_blue.max(*amount),
-                        Color::Green => max_green = max_green.max(*amount),
-                    }
-                }
+                max_red = max_red.max(reveal.red);
+                max_blue = max_blue.max(reveal.blue);
+                max_green = max_green.max(reveal.green);
             }
 
             max_red * max_blue * max_green
@@ -121,7 +114,6 @@ fn part_2<'a>(games: impl Iterator<Item = &'a Game>) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test_case::test_case;
 
     static TEST_INPUT: &str = "
         Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
@@ -138,60 +130,77 @@ mod tests {
             Game {
                 id: 1,
                 reveals: vec![
-                    Reveal(HashMap::from_iter([(Color::Blue, 3), (Color::Red, 4),])),
-                    Reveal(HashMap::from_iter([
-                        (Color::Green, 2),
-                        (Color::Blue, 6),
-                        (Color::Red, 1),
-                    ])),
-                    Reveal(HashMap::from_iter([(Color::Green, 2),])),
+                    Reveal {
+                        blue: 3,
+                        red: 4,
+                        ..Default::default()
+                    },
+                    Reveal {
+                        green: 2,
+                        blue: 6,
+                        red: 1
+                    },
+                    Reveal {
+                        green: 2,
+                        ..Default::default()
+                    },
                 ]
             }
         );
     }
 
     #[test]
-    fn parse_color() {
-        assert_eq!("red".parse::<Color>().unwrap(), Color::Red);
-        assert_eq!("blue".parse::<Color>().unwrap(), Color::Blue);
-        assert_eq!("green".parse::<Color>().unwrap(), Color::Green);
+    fn parse_reveal_blue() {
+        assert_eq!(
+            Reveal::from_str("3 blue").unwrap(),
+            Reveal {
+                blue: 3,
+                ..Default::default()
+            },
+        );
     }
 
-    #[test_case("blue")]
-    #[test_case("red")]
-    #[test_case("green")]
-    fn parse_reveal(color: &str) {
+    #[test]
+    fn parse_reveal_green() {
         assert_eq!(
-            Reveal::from_str(&format!("3 {}", color)).unwrap().0,
-            HashMap::from_iter([(color.parse().unwrap(), 3)]),
+            Reveal::from_str("3 green").unwrap(),
+            Reveal {
+                green: 3,
+                ..Default::default()
+            },
+        );
+    }
+
+    #[test]
+    fn parse_reveal_red() {
+        assert_eq!(
+            Reveal::from_str("3 red").unwrap(),
+            Reveal {
+                red: 3,
+                ..Default::default()
+            },
         );
     }
 
     #[test]
     fn parse_reveal_multi() {
         assert_eq!(
-            Reveal::from_str("6 red, 1 blue, 3 green").unwrap().0,
-            HashMap::from_iter([(Color::Red, 6), (Color::Blue, 1), (Color::Green, 3)])
+            Reveal::from_str("6 red, 1 blue, 3 green").unwrap(),
+            Reveal {
+                red: 6,
+                blue: 1,
+                green: 3
+            }
         );
     }
 
     #[test]
     fn test_1() {
-        let games: Vec<Game> = TEST_INPUT
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .map(|l| l.parse().unwrap())
-            .collect();
-        assert_eq!(part_1(games.iter()), 8);
+        assert_eq!(part_1(parse_input(TEST_INPUT).iter()), 8);
     }
 
     #[test]
     fn test_2() {
-        let games: Vec<Game> = TEST_INPUT
-            .lines()
-            .filter(|line| !line.trim().is_empty())
-            .map(|l| l.parse().unwrap())
-            .collect();
-        assert_eq!(part_2(games.iter()), 2286);
+        assert_eq!(part_2(parse_input(TEST_INPUT).iter()), 2286);
     }
 }
