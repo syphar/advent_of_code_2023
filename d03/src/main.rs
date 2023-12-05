@@ -68,7 +68,6 @@ fn part_1(input: &str) -> u64 {
 }
 
 fn fetch_number(line: &str, start: i64) -> Option<u64> {
-    println!("fetch_number: {} -> {}", start, line);
     let start = start.max(0) as usize;
 
     let Some(start_ch) = line.chars().nth(start) else {
@@ -117,45 +116,40 @@ fn part_2(input: &str) -> u64 {
 
         for x in 0..line.len() {
             let c = line.chars().nth(x).unwrap();
-            println!("X: {} -> {}", x, c);
 
             if c == '*' {
                 let mut gears = Vec::new();
                 if let Some(number) = fetch_number(&line, x as i64 - 1) {
-                    gears.push(dbg!(number));
+                    gears.push(number);
                 }
 
                 if let Some(number) = fetch_number(&line, x as i64 + 1) {
-                    gears.push(dbg!(number));
+                    gears.push(number);
                 }
 
                 if let Some(number) = fetch_number(&lines[y - 1], x as i64) {
-                    gears.push(dbg!(number));
+                    gears.push(number);
                 } else {
                     if let Some(number) = fetch_number(&lines[y - 1], x as i64 - 1) {
-                        gears.push(dbg!(number));
+                        gears.push(number);
                     }
                     if let Some(number) = fetch_number(&lines[y - 1], x as i64 + 1) {
-                        gears.push(dbg!(number));
+                        gears.push(number);
                     }
                 }
 
                 if let Some(number) = fetch_number(&lines[y + 1], x as i64) {
-                    gears.push(dbg!(number));
+                    gears.push(number);
                 } else {
                     if let Some(number) = fetch_number(&lines[y + 1], x as i64 - 1) {
-                        gears.push(dbg!(number));
+                        gears.push(number);
                     }
                     if let Some(number) = fetch_number(&lines[y + 1], x as i64 + 1) {
-                        gears.push(dbg!(number));
+                        gears.push(number);
                     }
                 }
 
                 if gears.len() == 2 {
-                    println!("LINE: {}", lines[y - 1]);
-                    println!("LINE: {}", lines[y]);
-                    println!("LINE: {}", lines[y + 1]);
-                    println!("gears: {:?}", gears);
                     let ratio = gears[0] * gears[1];
                     sum += ratio;
                 }
