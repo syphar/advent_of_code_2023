@@ -40,6 +40,13 @@ name = "d04"
 version = "0.1.0"
 
 [[package]]
+name = "d05"
+version = "0.1.0"
+dependencies = [
+ "test-case",
+]
+
+[[package]]
 name = "memchr"
 version = "2.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
