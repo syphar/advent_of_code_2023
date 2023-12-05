@@ -1,10 +1,10 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 fn main() {
     let input = include_str!("../input.txt");
 
     println!("part 1: {}", part_1(input));
-    // println!("part 2: {}", run_on_input(input, part_2));
+    println!("part 2: {}", part_2(input));
 }
 
 fn part_1(input: &str) -> u64 {
@@ -36,6 +36,78 @@ fn part_1(input: &str) -> u64 {
         .sum()
 }
 
+#[derive(Clone, Debug)]
+struct Card {
+    number: u64,
+    winners: HashSet<u64>,
+    mine: HashSet<u64>,
+    handled: bool,
+}
+
+impl Card {
+    fn wins(&self) -> u64 {
+        self.winners.intersection(&self.mine).count() as u64
+    }
+}
+
+fn part_2(input: &str) -> u64 {
+    let mut cards: Vec<Card> = input
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| {
+            let (card, numbers) = l.split_once(':').unwrap();
+            let (_, number) = card.trim().split_once(' ').unwrap();
+            let (winners, mine) = numbers.split_once('|').unwrap();
+
+            Card {
+                number: number.trim().parse().unwrap(),
+                winners: winners
+                    .split_whitespace()
+                    .map(|n| n.parse().unwrap())
+                    .collect(),
+                mine: mine
+                    .split_whitespace()
+                    .map(|n| n.parse().unwrap())
+                    .collect(),
+                handled: false,
+            }
+        })
+        .collect();
+
+    let cards_by_number: HashMap<u64, Card> =
+        HashMap::from_iter(cards.iter().cloned().map(|c| (c.number, c)));
+
+    loop {
+        let mut new_cards = Vec::new();
+        for card in &mut cards {
+            if card.handled {
+                continue;
+            }
+
+            if card.wins() == 0 {
+                card.handled = true;
+                continue;
+            }
+
+            for num in (card.number + 1)..=(card.number + card.wins()) {
+                if let Some(copied_card) = cards_by_number.get(&num) {
+                    let mut copied_card = copied_card.clone();
+                    copied_card.handled = false;
+                    new_cards.push(copied_card);
+                }
+                card.handled = true;
+            }
+        }
+        if new_cards.is_empty() {
+            break;
+        } else {
+            cards.extend(new_cards);
+        }
+    }
+
+    cards.len() as u64
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -54,8 +126,8 @@ mod tests {
         assert_eq!(part_1(TEST_INPUT), 13);
     }
 
-    // #[test]
-    // fn test_2() {
-    //     assert_eq!(run_on_input(TEST_INPUT, part_2), 2286);
-    // }
+    #[test]
+    fn test_2() {
+        assert_eq!(part_2(TEST_INPUT), 30);
+    }
 }
