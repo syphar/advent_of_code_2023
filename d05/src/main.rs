@@ -1,12 +1,12 @@
 mod data;
 use data::Map;
+use itertools::Itertools;
 
 fn main() {
     let (seeds, maps) = input_data();
-    // let input = include_str!("../input.txt");
 
     println!("part 1: {}", part_1(&seeds, maps.clone()));
-    // println!("part 2: {}", part_2(input));
+    println!("part 2: {}", part_2(&seeds, maps.clone()));
 }
 
 fn input_data() -> (Vec<u64>, Vec<Map>) {
@@ -211,6 +211,26 @@ fn part_1(seeds: &[u64], maps: Vec<Map>) -> u64 {
         .unwrap()
 }
 
+fn part_2(seeds: &[u64], maps: Vec<Map>) -> u64 {
+    seeds
+        .iter()
+        .tuples::<(_, _)>()
+        .map(|(&start, &len)| {
+            (start..=(start + len))
+                .map(|seed| {
+                    let mut value = seed;
+                    for map in &maps {
+                        value = map.map(value);
+                    }
+                    value
+                })
+                .min()
+                .unwrap()
+        })
+        .min()
+        .unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -260,8 +280,9 @@ mod tests {
         assert_eq!(part_1(&seeds, maps), 35);
     }
 
-    // #[test]
-    // fn test_2() {
-    //     assert_eq!(part_2(TEST_INPUT), 30);
-    // }
+    #[test]
+    fn test_2() {
+        let (seeds, maps) = test_input();
+        assert_eq!(part_2(&seeds, maps), 46);
+    }
 }
