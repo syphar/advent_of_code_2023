@@ -1,6 +1,7 @@
 mod data;
 use data::Map;
 use itertools::Itertools;
+use rayon::prelude::*;
 
 fn main() {
     let (seeds, maps) = input_data();
@@ -212,9 +213,9 @@ fn part_1(seeds: &[u64], maps: Vec<Map>) -> u64 {
 }
 
 fn part_2(seeds: &[u64], maps: Vec<Map>) -> u64 {
-    seeds
-        .iter()
-        .tuples::<(_, _)>()
+    let tuples: Vec<(_, _)> = seeds.iter().tuples::<(_, _)>().collect();
+    tuples
+        .par_iter()
         .map(|(&start, &len)| {
             (start..=(start + len))
                 .map(|seed| {
