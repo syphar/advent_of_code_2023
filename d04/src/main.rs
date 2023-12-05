@@ -1,4 +1,7 @@
-use std::collections::{HashMap, HashSet};
+mod data;
+
+use data::Card;
+use std::collections::HashMap;
 
 fn main() {
     let input = include_str!("../input.txt");
@@ -12,23 +15,10 @@ fn part_1(input: &str) -> u64 {
         .lines()
         .filter(|l| !l.trim().is_empty())
         .map(|l| {
-            let (_, numbers) = l.split_once(':').unwrap();
-            let (winners, mine) = numbers.split_once('|').unwrap();
+            let card: Card = l.parse().unwrap();
 
-            let winners: HashSet<u64> = winners
-                .split_whitespace()
-                .map(|n| n.parse().unwrap())
-                .collect();
-
-            let mine: HashSet<u64> = mine
-                .split_whitespace()
-                .map(|n| n.parse().unwrap())
-                .collect();
-
-            let won = winners.intersection(&mine).count();
-
-            if won > 0 {
-                2u64.pow(won as u32 - 1)
+            if card.wins() > 0 {
+                2u64.pow(card.wins() as u32 - 1)
             } else {
                 0
             }
@@ -36,42 +26,11 @@ fn part_1(input: &str) -> u64 {
         .sum()
 }
 
-#[derive(Clone, Debug)]
-struct Card {
-    number: u64,
-    winners: HashSet<u64>,
-    mine: HashSet<u64>,
-    handled: bool,
-}
-
-impl Card {
-    fn wins(&self) -> u64 {
-        self.winners.intersection(&self.mine).count() as u64
-    }
-}
-
 fn part_2(input: &str) -> u64 {
     let mut cards: Vec<Card> = input
         .lines()
         .filter(|l| !l.trim().is_empty())
-        .map(|l| {
-            let (card, numbers) = l.split_once(':').unwrap();
-            let (_, number) = card.trim().split_once(' ').unwrap();
-            let (winners, mine) = numbers.split_once('|').unwrap();
-
-            Card {
-                number: number.trim().parse().unwrap(),
-                winners: winners
-                    .split_whitespace()
-                    .map(|n| n.parse().unwrap())
-                    .collect(),
-                mine: mine
-                    .split_whitespace()
-                    .map(|n| n.parse().unwrap())
-                    .collect(),
-                handled: false,
-            }
-        })
+        .map(|l| l.parse().unwrap())
         .collect();
 
     let cards_by_number: HashMap<u64, Card> =
