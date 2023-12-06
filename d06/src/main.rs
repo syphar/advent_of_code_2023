@@ -1,8 +1,8 @@
 fn main() {
     let input = include_str!("../input.txt");
 
-    println!("part 1: {}", part_1(parse_races(input).iter().copied()));
-    // println!("part 2: {}", part_2(input));
+    println!("part 1: {}", run(parse_races_1(input).iter().copied()));
+    println!("part 2: {}", run(parse_races_2(input).iter().copied()));
 }
 
 fn calc_distance(charge: u64, race_len: u64) -> u64 {
@@ -10,7 +10,7 @@ fn calc_distance(charge: u64, race_len: u64) -> u64 {
     charge * race_for
 }
 
-fn parse_races(input: &str) -> Vec<(u64, u64)> {
+fn parse_races_1(input: &str) -> Vec<(u64, u64)> {
     let mut lines = input.lines().map(|l| l.trim()).filter(|l| !l.is_empty());
 
     let (_, times) = lines.next().unwrap().split_once(':').unwrap();
@@ -23,7 +23,19 @@ fn parse_races(input: &str) -> Vec<(u64, u64)> {
         .collect()
 }
 
-fn part_1(races: impl Iterator<Item = (u64, u64)>) -> u64 {
+fn parse_races_2(input: &str) -> Vec<(u64, u64)> {
+    let mut lines = input.lines().map(|l| l.trim()).filter(|l| !l.is_empty());
+
+    let (_, times) = lines.next().unwrap().split_once(':').unwrap();
+    let (_, distances) = lines.next().unwrap().split_once(':').unwrap();
+
+    vec![(
+        times.replace(' ', "").parse().unwrap(),
+        distances.replace(' ', "").parse().unwrap(),
+    )]
+}
+
+fn run(races: impl Iterator<Item = (u64, u64)>) -> u64 {
     let mut sum = 1;
 
     for (race_len, record_distance) in races {
@@ -70,11 +82,11 @@ mod tests {
 
     #[test]
     fn test_1() {
-        assert_eq!(part_1(parse_races(TEST_INPUT).iter().copied()), 288);
+        assert_eq!(run(parse_races_1(TEST_INPUT).iter().copied()), 288);
     }
 
-    // #[test]
-    // fn test_2() {
-    //     assert_eq!(part_2(TEST_INPUT), 30);
-    // }
+    #[test]
+    fn test_2() {
+        assert_eq!(run(parse_races_2(TEST_INPUT).iter().copied()), 71503);
+    }
 }
