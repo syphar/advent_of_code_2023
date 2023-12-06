@@ -36,28 +36,13 @@ fn parse_races_2(input: &str) -> Vec<(u64, u64)> {
 }
 
 fn run(races: impl Iterator<Item = (u64, u64)>) -> u64 {
-    let mut sum = 1;
-
-    for (race_len, record_distance) in races {
-        let mut wins = 0;
-        for try_charge in 1..=race_len {
-            let distance = calc_distance(try_charge, race_len);
-            if distance > record_distance {
-                wins += 1;
-            }
-        }
-        if wins > 0 {
-            sum *= wins;
-        }
-    }
-    // races
-    //     .map(|(race_len, record_distance)| {
-    //         (1..=race_len)
-    //             .filter(|&try_charge| calc_distance(try_charge, race_len) > record_distance)
-    //             .count() as u64
-    //     })
-    //     .fold(0u64, |acc, x| if x > 0 { acc * x } else { acc })
-    sum
+    races
+        .map(|(race_len, record_distance)| {
+            (1..=race_len)
+                .filter(|&try_charge| calc_distance(try_charge, race_len) > record_distance)
+                .count() as u64
+        })
+        .fold(1, |acc, x| if x > 0 { acc * x } else { acc })
 }
 
 #[cfg(test)]
