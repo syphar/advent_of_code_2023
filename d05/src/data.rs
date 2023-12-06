@@ -33,16 +33,14 @@ impl Map {
         }
         number
     }
-}
 
-impl FromStr for Map {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Map(s
-            .lines()
-            .filter(|l| !l.trim().is_empty())
-            .map(|l| l.parse().unwrap())
-            .collect()))
+    pub(crate) fn from_lines<'a>(lines: impl Iterator<Item = &'a str>) -> Self {
+        Self(
+            lines
+                .filter(|l| !l.trim().is_empty())
+                .map(|l| l.parse().unwrap())
+                .collect(),
+        )
     }
 }
 
@@ -53,12 +51,11 @@ mod tests {
 
     #[test]
     fn parse() {
-        let map: Map = "
-            50 98 2
-            52 50 48
-            "
-        .parse()
-        .unwrap();
+        let map = Map::from_lines(
+            "50 98 2
+            52 50 48"
+                .lines(),
+        );
 
         assert_eq!(
             map.0,

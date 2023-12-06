@@ -26,12 +26,12 @@ fn parse_input(input: &str) -> (Vec<u64>, Vec<Map>) {
         if map_line.chars().next().unwrap().is_ascii_digit() {
             map_inputs.push(map_line);
         } else {
-            maps.push(map_inputs.join("\n").parse().unwrap());
+            maps.push(Map::from_lines(map_inputs.iter().copied()));
             map_inputs.clear();
         }
     }
     if !map_inputs.is_empty() {
-        maps.push(map_inputs.join("\n").parse().unwrap());
+        maps.push(Map::from_lines(map_inputs.iter().copied()));
     }
 
     (seeds, maps)
