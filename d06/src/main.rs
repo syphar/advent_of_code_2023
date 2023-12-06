@@ -36,6 +36,8 @@ fn parse_races_2(input: &str) -> Vec<(u64, u64)> {
 }
 
 fn run(races: impl Iterator<Item = (u64, u64)>) -> u64 {
+    // this can very definitely be solved with better math, but I'm too tired for that right now :)
+    // So it's brute force time!
     races
         .map(|(race_len, record_distance)| {
             (1..=race_len)
