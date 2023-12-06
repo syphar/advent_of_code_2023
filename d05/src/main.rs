@@ -7,7 +7,7 @@ fn main() {
     let (seeds, maps) = parse_input(include_str!("../input.txt"));
 
     println!("part 1: {}", part_1(&seeds, maps.clone()));
-    println!("part 2: {}", part_2(&seeds, maps.clone()));
+    println!("part 2: {}", part_2(&seeds, maps));
 }
 
 fn parse_input(input: &str) -> (Vec<u64>, Vec<Map>) {
