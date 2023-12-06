@@ -5,7 +5,6 @@ pub(crate) struct Card {
     pub(crate) number: u64,
     pub(crate) winners: HashSet<u64>,
     pub(crate) mine: HashSet<u64>,
-    pub(crate) handled: bool,
 }
 
 impl Card {
@@ -31,7 +30,6 @@ impl FromStr for Card {
                 .split_whitespace()
                 .map(|n| n.parse().unwrap())
                 .collect(),
-            handled: false,
         })
     }
 }

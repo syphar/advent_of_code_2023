@@ -1,7 +1,7 @@
 mod data;
 
 use data::Card;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 
 fn main() {
     let input = include_str!("../input.txt");
@@ -27,7 +27,7 @@ fn part_1(input: &str) -> u64 {
 }
 
 fn part_2(input: &str) -> u64 {
-    let mut cards: Vec<Card> = input
+    let mut cards: VecDeque<Card> = input
         .lines()
         .filter(|l| !l.trim().is_empty())
         .map(|l| l.parse().unwrap())
@@ -36,35 +36,23 @@ fn part_2(input: &str) -> u64 {
     let cards_by_number: HashMap<u64, Card> =
         HashMap::from_iter(cards.iter().cloned().map(|c| (c.number, c)));
 
+    let mut cards_count = cards.len();
+
     loop {
-        let mut new_cards = Vec::new();
-        for card in &mut cards {
-            if card.handled {
-                continue;
-            }
-
-            if card.wins() == 0 {
-                card.handled = true;
-                continue;
-            }
-
+        while let Some(card) = cards.pop_front() {
             for num in (card.number + 1)..=(card.number + card.wins()) {
                 if let Some(copied_card) = cards_by_number.get(&num) {
-                    let mut copied_card = copied_card.clone();
-                    copied_card.handled = false;
-                    new_cards.push(copied_card);
+                    cards_count += 1;
+                    cards.push_back(copied_card.clone());
                 }
-                card.handled = true;
             }
         }
-        if new_cards.is_empty() {
+        if cards.is_empty() {
             break;
-        } else {
-            cards.extend(new_cards);
         }
     }
 
-    cards.len() as u64
+    cards_count as u64
 }
 
 #[cfg(test)]
