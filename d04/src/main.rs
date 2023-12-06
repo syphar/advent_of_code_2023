@@ -38,17 +38,12 @@ fn part_2(input: &str) -> u64 {
 
     let mut cards_count = cards.len();
 
-    loop {
-        while let Some(card) = cards.pop_front() {
-            for num in (card.number + 1)..=(card.number + card.wins()) {
-                if let Some(copied_card) = cards_by_number.get(&num) {
-                    cards_count += 1;
-                    cards.push_back(copied_card.clone());
-                }
+    while let Some(card) = cards.pop_front() {
+        for num in (card.number + 1)..=(card.number + card.wins()) {
+            if let Some(copied_card) = cards_by_number.get(&num) {
+                cards_count += 1;
+                cards.push_back(copied_card.clone());
             }
-        }
-        if cards.is_empty() {
-            break;
         }
     }
 
