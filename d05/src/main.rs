@@ -21,17 +21,17 @@ fn parse_input(input: &str) -> (Vec<u64>, Vec<Map>) {
         .collect();
 
     let mut maps: Vec<Map> = Vec::new();
-    let mut map_inputs = String::new();
+    let mut map_inputs = Vec::new();
     for map_line in lines {
         if map_line.chars().next().unwrap().is_ascii_digit() {
-            map_inputs.push_str(&format!("{map_line}\n"));
+            map_inputs.push(map_line);
         } else {
-            maps.push(map_inputs.parse().unwrap());
+            maps.push(map_inputs.join("\n").parse().unwrap());
             map_inputs.clear();
         }
     }
     if !map_inputs.is_empty() {
-        maps.push(map_inputs.parse().unwrap());
+        maps.push(map_inputs.join("\n").parse().unwrap());
     }
 
     (seeds, maps)
