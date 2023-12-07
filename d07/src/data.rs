@@ -1,8 +1,11 @@
 use itertools::Itertools;
 use std::{cmp::Ordering, str::FromStr};
 
+// static CARDS: &[char] = &[
+//     'A', 'K', 'Q', 'J', T', '9', '8', '7', '6', '5', '4', '3', '2',
+// ];
 static CARDS: &[char] = &[
-    'A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2',
+    'A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J',
 ];
 
 #[derive(Debug, Eq, Clone, Copy)]
@@ -56,7 +59,7 @@ impl PartialOrd for Card {
     }
 }
 
-#[derive(PartialEq, Eq, Debug)]
+#[derive(PartialEq, Eq, Debug, Clone)]
 pub(crate) struct Hand([Card; 5]);
 
 impl Hand {
@@ -129,6 +132,22 @@ impl Hand {
         }
         unreachable!();
     }
+
+    pub(crate) fn upgrade(&self) -> Self {
+        let mut new_hand = self.clone();
+
+        if let Some(pos) = new_hand.0.iter().position(|ch| ch.0 == 'J') {
+            for new_ch in CARDS.iter().copied() {
+                let mut potential_new_hand = self.clone();
+                potential_new_hand.0[pos].0 = new_ch;
+                if potential_new_hand.order_value() > new_hand.order_value() {
+                    new_hand = potential_new_hand.upgrade();
+                }
+            }
+        }
+
+        new_hand
+    }
 }
 
 impl FromStr for Hand {
@@ -197,5 +216,16 @@ mod tests {
         let rhs: Hand = rhs.parse().unwrap();
         println!("{:?} {:?}", lhs.order_value(), rhs.order_value());
         assert!(lhs < rhs);
+    }
+
+    #[test_case("32T3K", "32T3K")]
+    #[test_case("KK677", "KK677")]
+    #[test_case("T55J5", "T5555")]
+    #[test_case("KTJJT", "KTTTT")]
+    #[test_case("QQQJA", "QQQQA")]
+    fn test_upgrade(lhs: &str, rhs: &str) {
+        let lhs: Hand = lhs.parse().unwrap();
+        let rhs: Hand = rhs.parse().unwrap();
+        assert_eq!(lhs.upgrade(), rhs);
     }
 }

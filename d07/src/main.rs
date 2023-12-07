@@ -5,7 +5,7 @@ fn main() {
     let input = include_str!("../input.txt");
 
     println!("part 1: {}", part_1(parse(input)));
-    // println!("part 2: {}", run(parse_races_2(input).iter().copied()));
+    println!("part 2: {}", part_2(parse(input)));
 }
 
 fn parse(input: &str) -> Vec<(Hand, u64)> {
@@ -21,6 +21,20 @@ fn parse(input: &str) -> Vec<(Hand, u64)> {
 }
 
 fn part_1(mut hands: Vec<(Hand, u64)>) -> u64 {
+    hands.sort();
+
+    hands
+        .iter()
+        .map(|(_, bid)| bid)
+        .enumerate()
+        .map(|(rank, bid)| (rank + 1) as u64 * bid)
+        .sum()
+}
+
+fn part_2(mut hands: Vec<(Hand, u64)>) -> u64 {
+    for (hand, _) in &mut hands {
+        *hand = hand.upgrade();
+    }
     hands.sort();
 
     hands
@@ -49,8 +63,9 @@ mod tests {
         assert_eq!(part_1(data), 6440);
     }
 
-    // #[test]
-    // fn test_2() {
-    //     assert_eq!(run(parse_races_2(TEST_INPUT).iter().copied()), 71503);
-    // }
+    #[test]
+    fn test_2() {
+        let data = parse(TEST_INPUT);
+        assert_eq!(part_2(data), 5905);
+    }
 }
