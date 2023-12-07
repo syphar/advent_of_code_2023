@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use std::hash::Hash;
 use std::{cmp::Ordering, str::FromStr};
 
 // static CARDS: &[char] = &[
@@ -11,7 +12,7 @@ static CARDS: &[char] = &[
 #[derive(Debug, Eq, Clone, Copy)]
 pub(crate) struct Card(char);
 
-impl std::hash::Hash for Card {
+impl Hash for Card {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.0.hash(state);
     }
@@ -60,7 +61,7 @@ impl PartialOrd for Card {
 }
 
 #[derive(PartialEq, Eq, Debug, Clone)]
-pub(crate) struct Hand([Card; 5]);
+pub(crate) struct Hand([Card; 5], [Card; 5]);
 
 impl Hand {
     fn counts(&self) -> Vec<(Card, usize)> {
@@ -122,10 +123,10 @@ impl Hand {
     }
 
     fn compare_cards(&self, other: &Self) -> Ordering {
-        if self.0 == other.0 {
+        if self.1 == other.1 {
             return Ordering::Equal;
         }
-        for (lhs, rhs) in self.0.iter().zip(other.0.iter()) {
+        for (lhs, rhs) in self.1.iter().zip(other.1.iter()) {
             if lhs != rhs {
                 return lhs.cmp(rhs);
             }
@@ -154,9 +155,8 @@ impl FromStr for Hand {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Ok(Self(
-            s.chars().map(Card::from).collect_vec().try_into().unwrap(),
-        ))
+        let cards = s.chars().map(Card::from).collect_vec().try_into().unwrap();
+        Ok(Self(cards, cards))
     }
 }
 
@@ -211,6 +211,7 @@ mod tests {
     #[test_case("KK677", "T55J5")]
     #[test_case("KK677", "QQQJA")]
     #[test_case("T55J5", "QQQJA")]
+    #[test_case("JKKK2", "QQQQ2")]
     fn hand_ordering(lhs: &str, rhs: &str) {
         let lhs: Hand = lhs.parse().unwrap();
         let rhs: Hand = rhs.parse().unwrap();
@@ -226,6 +227,6 @@ mod tests {
     fn test_upgrade(lhs: &str, rhs: &str) {
         let lhs: Hand = lhs.parse().unwrap();
         let rhs: Hand = rhs.parse().unwrap();
-        assert_eq!(lhs.upgrade(), rhs);
+        assert_eq!(lhs.upgrade().0, rhs.0);
     }
 }
